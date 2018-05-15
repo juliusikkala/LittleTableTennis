@@ -1,0 +1,3 @@
+[submodule "subprojects/Littleton"]
+	path = subprojects/Littleton
+	url = git@github.com:juliusikkala/Littleton.git
