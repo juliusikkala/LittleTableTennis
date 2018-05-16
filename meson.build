@@ -7,6 +7,8 @@ project(
 src = [
   'src/main.cc',
   'src/game.cc',
+  'src/board.cc',
+  'src/basic_pipeline.cc',
 ]
 
 littleton_sp = subproject('Littleton', default_options : ['buildtype=release'])

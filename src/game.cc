@@ -8,9 +8,16 @@ game::game()
         {
             "data/shaders/",
             "subprojects/Littleton/data/shaders/"
-        },
-        {"data/shaders/bin"}
-    )
+        } //, {"data/shaders/bin"}
+    ),
+    board1(
+        win,
+        pool,
+        "data",
+        "data/models/board1.glb",
+        "data/models/counter.glb"
+    ),
+    pipeline(win, pool, win.get_size(), board1.get_scene())
 {
     win.set_framerate_limit(200);
     win.grab_mouse();
@@ -40,5 +47,6 @@ bool game::update()
 
 void game::render()
 {
+    pipeline.get_pipeline().execute();
     win.present();
 }
