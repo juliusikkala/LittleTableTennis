@@ -6,6 +6,7 @@ project(
 
 src = [
   'src/main.cc',
+  'src/game.cc',
 ]
 
 littleton_sp = subproject('Littleton', default_options : ['buildtype=release'])
