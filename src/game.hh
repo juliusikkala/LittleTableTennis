@@ -20,7 +20,7 @@ private:
     lt::window win;
     lt::resource_pool pool;
 
-    board board1;
     basic_pipeline pipeline;
+    board board1;
 };
 #endif

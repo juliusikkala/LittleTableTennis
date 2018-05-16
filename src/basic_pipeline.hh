@@ -17,6 +17,7 @@
 #include "method/ssrt.hh"
 #include "method/visualize_gbuffer.hh"
 #include "method/blit_framebuffer.hh"
+#include "method/draw_texture.hh"
 
 /* The pipeline creation is quite convoluted for the moment. It would be nice to
  * have some built-in solutions in Littleton.
@@ -35,6 +36,11 @@ public:
 
     lt::pipeline& get_pipeline();
     lt::pipeline& get_visualizer_pipeline();
+    lt::pipeline& get_texture_pipeline();
+
+    void set_texture(lt::texture& tex);
+
+    lt::method::shadow_msm& get_msm();
 private:
     // Render targets
     lt::texture normal;
@@ -74,6 +80,9 @@ private:
     lt::method::blit_framebuffer buf_to_window;
     lt::pipeline visualizer_pipeline;
 
+    // Texture pipeline
+    lt::method::draw_texture dt;
+    lt::pipeline texture_pipeline;
 };
 
 #endif

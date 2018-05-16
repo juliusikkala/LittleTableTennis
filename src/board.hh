@@ -3,8 +3,11 @@
 #include "object.hh"
 #include "window.hh"
 #include "resource_pool.hh"
+#include "basic_pipeline.hh"
 #include "scene_graph.hh"
 #include "scene.hh"
+#include "light.hh"
+#include "method/shadow_msm.hh"
 #include "camera.hh"
 #include <vector>
 
@@ -14,6 +17,7 @@ public:
     board(
         lt::window& win,
         lt::resource_pool& pool,
+        basic_pipeline& pipeline,
         const std::string& data_path,
         const std::string& board_path,
         const std::string& counter_path
@@ -71,6 +75,9 @@ private:
 
     std::vector<player> players;
     lt::object* ball;
+
+    lt::directional_light sun;
+    lt::directional_shadow_map_msm sun_shadow;
 
     lt::camera cam;
 };

@@ -68,9 +68,11 @@ basic_pipeline::basic_pipeline(
         &skybox,
         &vg,
         &buf_to_window
-    })
+    }),
+
+    dt(win, pool),
+    texture_pipeline({&msm, &dt})
 {
-    ssrt.set_thickness(0.5f);
     ssrt.set_ray_offset(0.1f);
     ssrt.use_fallback_cubemap(false);
 }
@@ -94,4 +96,19 @@ lt::pipeline& basic_pipeline::get_pipeline()
 lt::pipeline& basic_pipeline::get_visualizer_pipeline()
 {
     return visualizer_pipeline;
+}
+
+lt::method::shadow_msm& basic_pipeline::get_msm()
+{
+    return msm;
+}
+
+lt::pipeline& basic_pipeline::get_texture_pipeline()
+{
+    return texture_pipeline;
+}
+
+void basic_pipeline::set_texture(lt::texture& tex)
+{
+    dt.set_texture(&tex);
 }

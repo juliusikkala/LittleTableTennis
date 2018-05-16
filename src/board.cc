@@ -5,10 +5,22 @@
 board::board(
     lt::window& win,
     lt::resource_pool& pool,
+    basic_pipeline& pipeline,
     const std::string& data_path,
     const std::string& board_path,
     const std::string& counter_path
-) {
+):  sun_shadow(
+        &pipeline.get_msm(),
+        win,
+        lt::uvec2(1024, 1024),
+        4,
+        4,
+        lt::vec3(0),
+        lt::vec2(20.0f, 20.0f),
+        lt::vec2(-10.0f, 10.0f),
+        &sun
+    )
+{
     /* load_gltf returns all the scene graphs found in the file. Merge them into
      * one.
      */
@@ -65,8 +77,13 @@ board::board(
         p.score = 0;
     }
 
+    sun.set_color(lt::vec3(3.0, 2.0, 1.0));
+    sun.set_direction(lt::normalize(lt::vec3(0,-1,2)));
+    scene.add_light(&sun);
+    scene.add_shadow(&sun_shadow);
+    pipeline.set_texture(sun_shadow.get_moments());
     scene.set_camera(&cam);
-    scene.set_ambient(lt::vec3(0.5f));
+    scene.set_ambient(lt::vec3(0.03f));
     cam.perspective(60, win.get_aspect(), 0.1, 40);
     cam.set_position(lt::vec3(0,10,8));
     cam.lookat(ball);
