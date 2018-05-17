@@ -7,6 +7,7 @@
 #include "scene_graph.hh"
 #include "scene.hh"
 #include "light.hh"
+#include "environment_map.hh"
 #include "method/shadow_msm.hh"
 #include "camera.hh"
 #include <vector>
@@ -74,10 +75,13 @@ private:
     };
 
     std::vector<player> players;
+    lt::object* game_board;
     lt::object* ball;
 
     lt::directional_light sun;
     lt::directional_shadow_map_msm sun_shadow;
+
+    lt::environment_map environment;
 
     lt::camera cam;
 };

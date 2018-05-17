@@ -44,6 +44,8 @@ bool game::update()
             break;
         };
     }
+
+    board1.update(win.get_delta());
     return true;
 }
 

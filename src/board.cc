@@ -14,12 +14,13 @@ board::board(
         win,
         lt::uvec2(1024, 1024),
         4,
-        4,
+        2,
         lt::vec3(0),
-        lt::vec2(20.0f, 20.0f),
-        lt::vec2(-10.0f, 10.0f),
+        lt::vec2(25.0f, 25.0f),
+        lt::vec2(-12.0f, 12.0f),
         &sun
-    )
+    ),
+    environment(win, "data/skybox/sky.hdr", false, 0.4f)
 {
     /* load_gltf returns all the scene graphs found in the file. Merge them into
      * one.
@@ -35,7 +36,9 @@ board::board(
     /* Get the objects from the graph. The names of the objects are defined in
      * the .glb file. You can take look at the included .blend to see them too.
      */
+    game_board = graph.get_object("Board");
     ball = graph.get_object("Ball");
+
 
     // The loader should also add these new materials to the pool.
     std::vector<const lt::material*> counter_materials = {
@@ -77,17 +80,32 @@ board::board(
         p.score = 0;
     }
 
+    // Setup lighting
     sun.set_color(lt::vec3(3.0, 2.0, 1.0));
-    sun.set_direction(lt::normalize(lt::vec3(0,-1,2)));
+    sun.set_direction(lt::normalize(lt::vec3(
+        0.8059,
+        -0.08716,
+        0.5855
+    )));
+    sun_shadow.set_offset(glm::vec3(-1,0,0));
     scene.add_light(&sun);
     scene.add_shadow(&sun_shadow);
+    scene.set_skybox(&environment);
     pipeline.set_texture(sun_shadow.get_moments());
-    scene.set_camera(&cam);
-    scene.set_ambient(lt::vec3(0.03f));
+    scene.set_ambient(lt::vec3(0.06f,0.08f,0.1f));
+
+    // Setup camera
+    cam.set_parent(game_board);
     cam.perspective(60, win.get_aspect(), 0.1, 40);
-    cam.set_position(lt::vec3(0,10,8));
+    cam.set_position(lt::vec3(0,8,8));
     cam.lookat(ball);
     cam.translate(lt::vec3(0,0,1));
+
+    scene.set_camera(&cam);
+
+    // Position board
+    game_board->rotate(190.0f, lt::vec3(0,1,0));
+    game_board->rotate_local(10.0f, lt::vec3(1,0,0));
 }
 
 lt::render_scene* board::get_scene()
@@ -104,6 +122,7 @@ void board::set_paddle_dir(unsigned player_index, int dir)
 void board::update(float dt)
 {
     // TODO
+    //game_board->rotate(dt*60.0f, lt::vec3(0,1,0));
 }
 
 bool board::declare_winner(unsigned& winner)

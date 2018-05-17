@@ -74,7 +74,7 @@ basic_pipeline::basic_pipeline(
     texture_pipeline({&msm, &dt})
 {
     ssrt.set_ray_offset(0.1f);
-    ssrt.use_fallback_cubemap(false);
+    ssrt.use_fallback_cubemap(true);
 }
 
 void basic_pipeline::set_scene(lt::render_scene* scene)
