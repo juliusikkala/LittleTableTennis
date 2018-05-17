@@ -20,7 +20,7 @@ board::board(
         lt::vec2(-12.0f, 12.0f),
         &sun
     ),
-    environment(win, "data/skybox/sky.hdr", false, 0.4f)
+    environment(win, "data/skybox/sky.hdr", false, 2.0f)
 {
     /* load_gltf returns all the scene graphs found in the file. Merge them into
      * one.
@@ -87,7 +87,7 @@ board::board(
         -0.08716,
         0.5855
     )));
-    sun_shadow.set_offset(glm::vec3(-1,0,0));
+    sun_shadow.set_offset(lt::vec3(-1,0,0));
     scene.add_light(&sun);
     scene.add_shadow(&sun_shadow);
     scene.set_skybox(&environment);
@@ -97,15 +97,15 @@ board::board(
     // Setup camera
     cam.set_parent(game_board);
     cam.perspective(60, win.get_aspect(), 0.1, 40);
-    cam.set_position(lt::vec3(0,8,8));
-    cam.lookat(ball);
-    cam.translate(lt::vec3(0,0,1));
+    cam.set_position(lt::vec3(0,8,-8));
+    cam.lookat(lt::vec3(0), lt::vec3(0,1,0));
+    cam.translate(lt::vec3(0,0,-1));
 
     scene.set_camera(&cam);
 
     // Position board
-    game_board->rotate(190.0f, lt::vec3(0,1,0));
-    game_board->rotate_local(10.0f, lt::vec3(1,0,0));
+    game_board->rotate(10.0f, lt::vec3(0,1,0));
+    game_board->rotate_local(-10.0f, lt::vec3(1,0,0));
 }
 
 lt::render_scene* board::get_scene()
@@ -121,8 +121,13 @@ void board::set_paddle_dir(unsigned player_index, int dir)
 
 void board::update(float dt)
 {
-    // TODO
-    //game_board->rotate(dt*60.0f, lt::vec3(0,1,0));
+    for(auto& player: players)
+    {
+        glm::vec3 pos = player.paddle->get_position();
+        pos += lt::vec3(0,0,5*dt*player.paddle_dir);
+        pos.z = lt::clamp(pos.z, -4.0f, 4.0f);
+        player.paddle->set_position(pos);
+    }
 }
 
 bool board::declare_winner(unsigned& winner)

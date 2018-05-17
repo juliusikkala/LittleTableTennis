@@ -45,6 +45,16 @@ bool game::update()
         };
     }
 
+    const uint8_t* state = SDL_GetKeyboardState(NULL);
+    int dirs[2] = {0};
+    if(state[SDL_SCANCODE_W]) dirs[0]++;
+    if(state[SDL_SCANCODE_S]) dirs[0]--;
+    if(state[SDL_SCANCODE_I]) dirs[1]++;
+    if(state[SDL_SCANCODE_K]) dirs[1]--;
+
+    board1.set_paddle_dir(0, dirs[0]);
+    board1.set_paddle_dir(1, dirs[1]);
+
     board1.update(win.get_delta());
     return true;
 }
