@@ -2,6 +2,24 @@
 #include "loaders.hh"
 #include <string>
 
+namespace
+{
+
+lt::vec3 random_start_direction()
+{
+    lt::vec2 candidate = lt::vec2(0);
+
+    // Yes I know this algorithm is dumb...
+    while(
+        fabs(candidate.x) < 0.1f ||
+        fabs(candidate.y) < 0.1f
+    ) candidate = lt::circularRand(1.0f);
+
+    return lt::normalize(lt::vec3(candidate.x, 0, candidate.y));
+}
+
+}
+
 board::board(
     lt::window& win,
     lt::resource_pool& pool,
@@ -9,7 +27,10 @@ board::board(
     const std::string& data_path,
     const std::string& board_path,
     const std::string& counter_path
-):  sun_shadow(
+):  ball_velocity(4.0f),
+    ball_dir(random_start_direction()),
+    ball_axis(lt::sphericalRand(1.0f)),
+    sun_shadow(
         &pipeline.get_msm(),
         win,
         lt::uvec2(1024, 1024),
@@ -121,13 +142,67 @@ void board::set_paddle_dir(unsigned player_index, int dir)
 
 void board::update(float dt)
 {
+    constexpr float top_edge = 5.0f;
+    constexpr float bottom_edge = -5.0f;
+    constexpr float left_edge = 10.0f;
+    constexpr float right_edge = -10.0f;
+    constexpr lt::vec2 paddle_radius = lt::vec2(1.0f, 0.3f);
+    constexpr float ball_radius = 0.3f;
+
+    // Update paddles
     for(auto& player: players)
     {
-        glm::vec3 pos = player.paddle->get_position();
+        lt::vec3 pos = player.paddle->get_position();
         pos += lt::vec3(0,0,5*dt*player.paddle_dir);
-        pos.z = lt::clamp(pos.z, -4.0f, 4.0f);
+        pos.z = lt::clamp(
+            pos.z,
+            bottom_edge + paddle_radius.x,
+            top_edge - paddle_radius.x
+        );
         player.paddle->set_position(pos);
     }
+
+    // Update ball
+    lt::vec3 ball_pos = ball->get_position();
+    ball_pos += dt * ball_velocity * ball_dir;
+
+    if(
+        (ball_pos.z - ball_radius < bottom_edge && ball_dir.z < 0) ||
+        (ball_pos.z + ball_radius > top_edge && ball_dir.z > 0)
+    ){
+        ball_axis = lt::sphericalRand(1.0f);
+        ball_dir.z = -ball_dir.z;
+    }
+
+    // Check for a goal
+    bool reset_ball = false;
+    if(ball_pos.x > left_edge)
+    {
+        reset_ball = true;
+        players[1].score++;
+    }
+
+    if(ball_pos.x < right_edge)
+    {
+        reset_ball = true;
+        players[0].score++;
+    }
+
+    if(reset_ball)
+    {
+        ball_pos.x = 0;
+        ball_pos.z = 0;
+        ball_dir = random_start_direction();
+    }
+
+    ball->set_position(ball_pos);
+    ball->rotate(
+        dt * 90.0f * ball_velocity,
+        lt::cross(
+            lt::vec3(0,1,0),
+            ball_dir
+        )
+    );
 }
 
 bool board::declare_winner(unsigned& winner)

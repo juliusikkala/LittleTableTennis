@@ -25,6 +25,9 @@ game::game()
     win.grab_mouse();
     std::cout << "GPU Vendor: " << win.get_vendor_name() << std::endl
         << "Renderer:   " << win.get_renderer() << std::endl;
+
+    // Load needed resources and reset frametime
+    render();
 }
 
 bool game::update()
