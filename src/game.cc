@@ -2,7 +2,7 @@
 #include <iostream>
 
 game::game()
-:   win({"LittlePong", {1280, 720}, true, true, false}),
+:   win({"LittleTableTennis", {1280, 720}, true, true, false}),
     pool(
         win,
         {
