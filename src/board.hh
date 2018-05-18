@@ -55,15 +55,15 @@ private:
 
     struct player
     {
-        /* The number objects used to show the score. All players have
-         * differently colored numbers, which is why the number objects are
+        /* The number models used to show the score. All players have
+         * differently colored numbers, which is why the number models are
          * player-specific.
          */
-        struct {
-            // Since the constructor creates custom models, they are stored here
-            lt::model mod;
-            lt::object obj;
-        } numbers[10];
+        struct lt::model numbers[10];
+
+        // The numbers of the score
+        std::vector<lt::object> score_numbers;
+
         // The paddle of the player
         lt::object* paddle;
 

@@ -58,6 +58,41 @@ bool circle_rect_intersection(
     return false;
 }
 
+// Sets the positions of the score numbers and sets their models.
+void init_score_numbers(
+    lt::object& board,
+    lt::model& zero,
+    std::vector<lt::object>& score_numbers,
+    lt::vec3 origin,
+    lt::vec3 step,
+    float scaling
+){
+    lt::vec3 offset = step * lt::vec3((score_numbers.size()-1)/-2.0f);
+
+    for(lt::object& number: score_numbers)
+    {
+        number.set_parent(&board);
+        number.set_model(&zero);
+        number.set_position(origin + offset);
+        number.set_scaling(lt::vec3(scaling));
+        number.rotate(90, lt::vec3(1,0,0));
+        number.rotate(180, lt::vec3(0,1,0));
+        offset += step;
+    }
+}
+
+void update_score_numbers(
+    unsigned score,
+    lt::model* numbers,
+    std::vector<lt::object>& score_numbers
+){
+    for(unsigned i = 0; i < score_numbers.size(); ++i)
+    {
+        score_numbers[i].set_model(numbers + (score % 10));
+        score /= 10;
+    }
+}
+
 }
 
 board::board(
@@ -74,10 +109,10 @@ board::board(
         win,
         lt::uvec2(1024, 1024),
         4,
-        2,
-        lt::vec3(0),
-        lt::vec2(22.0f, 6.0f),
-        lt::vec2(-12.0f, 12.0f),
+        4,
+        lt::vec3(0,0.7f,0),
+        lt::vec2(23.f, 5.0f),
+        lt::vec2(-11.5f, 11.0f),
         &sun
     ),
     environment(win, "data/skybox/sky.hdr", false, 2.0f)
@@ -101,10 +136,14 @@ board::board(
 
 
     // The loader should also add these new materials to the pool.
-    std::vector<const lt::material*> counter_materials = {
-        pool.get_material("BlueGlow"),
-        pool.get_material("RedGlow")
+    std::vector<lt::material*> counter_materials = {
+        pool.get_material_mutable("BlueGlow"),
+        pool.get_material_mutable("RedGlow")
     };
+
+    // glTF2.0 limits emissiveFactor to 0.0-1.0, but we want some brighter
+    // lights.
+    for(lt::material* mat: counter_materials) mat->emission_factor *= 5.0f;
 
     // Handle player-specific objects
     players.resize(2);
@@ -122,18 +161,25 @@ board::board(
             );
             const lt::model* base_model = base_number->get_model();
 
-            lt::model& result_model = p.numbers[j].mod;
-            lt::object& result_number = p.numbers[j].obj;
+            lt::model& result_model = p.numbers[j];
 
             // Copy original model and set materials
             result_model = *base_model;
             for(auto& vgroup: result_model)
                 vgroup.mat = counter_materials[i];
-
-            // Copy original object and set model 
-            result_number = *base_number;
-            result_number.set_model(&result_model);
         }
+
+        // Add counter numbers
+        p.score_numbers.resize(2);
+        for(lt::object& number: p.score_numbers) scene.add_object(&number);
+        init_score_numbers(
+            *game_board,
+            p.numbers[0],
+            p.score_numbers,
+            lt::vec3(6.f - i*12.f, 2.2, 5.5),
+            lt::vec3(2, 0, 0),
+            0.4f
+        );
 
         p.paddle = graph.get_object("Paddle" + std::to_string(i+1));
         p.paddle_dir = 0;
@@ -147,7 +193,6 @@ board::board(
         -0.08716,
         0.5855
     )));
-    sun_shadow.set_offset(lt::vec3(-1,0,0));
     scene.add_light(&sun);
     scene.add_shadow(&sun_shadow);
     scene.set_skybox(&environment);
@@ -205,6 +250,9 @@ void board::update(float dt)
     lt::vec3 ball_pos = ball->get_position();
     ball_pos += dt * ball_velocity * ball_dir;
 
+    // Adjust ball direction so that the game doesn't become too slow
+    if(fabs(ball_dir.x) < 0.4f) ball_dir.x *= 1.01f;
+
     // Check for collisions with board edges
     if(
         (ball_pos.z - ball_radius < bottom_edge && ball_dir.z < 0) ||
@@ -245,14 +293,21 @@ void board::update(float dt)
     if(ball_pos.x > left_edge)
     {
         reset_ball = true;
-        ball_velocity = 7.0f;
-        players[1].score++;
+        update_score_numbers(
+            ++players[1].score,
+            players[1].numbers,
+            players[1].score_numbers
+        );
     }
 
     if(ball_pos.x < right_edge)
     {
         reset_ball = true;
-        players[0].score++;
+        update_score_numbers(
+            ++players[0].score,
+            players[0].numbers,
+            players[0].score_numbers
+        );
     }
 
     if(reset_ball)
