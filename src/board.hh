@@ -79,7 +79,6 @@ private:
     lt::object* ball;
     float ball_velocity;
     lt::vec3 ball_dir;
-    lt::vec3 ball_axis;
 
     lt::directional_light sun;
     lt::directional_shadow_map_msm sun_shadow;

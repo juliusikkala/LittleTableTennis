@@ -28,13 +28,12 @@ basic_pipeline::basic_pipeline(
     skybox(buf, pool, scene),
 
     msm(pool, scene),
-
     gp(buf, pool, scene, false),
     lp(buf, buf, pool, scene),
 
     sao(buf, buf, pool, scene, 1.0f, 8, 0.01, 0.5f),
     ssrt(buf, buf, pool, scene),
-    bloom(postprocess.input(0), pool, &lighting, 6.0f, 30, 0.1f),
+    bloom(postprocess.input(0), pool, &lighting, 2.0f, 15, 0.5f, 1),
     tm(postprocess.input(1), pool, &postprocess.output(1)),
 
     postprocess_to_window(

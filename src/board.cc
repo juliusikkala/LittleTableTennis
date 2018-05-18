@@ -18,6 +18,46 @@ lt::vec3 random_start_direction()
     return lt::normalize(lt::vec3(candidate.x, 0, candidate.y));
 }
 
+// Figures out whether an axis-aligned rectangle and a circle intersect. If they
+// do, also determines the collision normal.
+bool circle_rect_intersection(
+    lt::vec2 rect_origin,
+    lt::vec2 rect_radius,
+    lt::vec2 circle_origin,
+    float circle_radius,
+    lt::vec2& normal
+){
+    lt::vec2 offset = circle_origin - rect_origin;
+    lt::vec2 dist = lt::abs(offset);
+
+    if(
+        dist.x > rect_radius.x + circle_radius ||
+        dist.y > rect_radius.y + circle_radius
+    ) return false;
+
+    if(dist.x <= rect_radius.x)
+    {
+        normal = lt::vec2(0, lt::sign(offset.y));
+        return true;
+    }
+
+    if(dist.y <= rect_radius.y)
+    {
+        normal = lt::vec2(lt::sign(offset.x), 0);
+        return true;
+    }
+
+    dist -= rect_radius;
+
+    float corner_dist = lt::dot(dist, dist);
+    if(corner_dist <= circle_radius * circle_radius)
+    {
+        normal = lt::normalize(dist * offset);
+        return true;
+    }
+    return false;
+}
+
 }
 
 board::board(
@@ -27,9 +67,8 @@ board::board(
     const std::string& data_path,
     const std::string& board_path,
     const std::string& counter_path
-):  ball_velocity(4.0f),
+):  ball_velocity(7.0f),
     ball_dir(random_start_direction()),
-    ball_axis(lt::sphericalRand(1.0f)),
     sun_shadow(
         &pipeline.get_msm(),
         win,
@@ -37,7 +76,7 @@ board::board(
         4,
         2,
         lt::vec3(0),
-        lt::vec2(25.0f, 25.0f),
+        lt::vec2(22.0f, 6.0f),
         lt::vec2(-12.0f, 12.0f),
         &sun
     ),
@@ -146,18 +185,18 @@ void board::update(float dt)
     constexpr float bottom_edge = -5.0f;
     constexpr float left_edge = 10.0f;
     constexpr float right_edge = -10.0f;
-    constexpr lt::vec2 paddle_radius = lt::vec2(1.0f, 0.3f);
+    constexpr lt::vec2 paddle_radius = lt::vec2(0.3f, 1.0f);
     constexpr float ball_radius = 0.3f;
 
     // Update paddles
     for(auto& player: players)
     {
         lt::vec3 pos = player.paddle->get_position();
-        pos += lt::vec3(0,0,5*dt*player.paddle_dir);
+        pos += lt::vec3(0,0,10*dt*player.paddle_dir);
         pos.z = lt::clamp(
             pos.z,
-            bottom_edge + paddle_radius.x,
-            top_edge - paddle_radius.x
+            bottom_edge + paddle_radius.y,
+            top_edge - paddle_radius.y
         );
         player.paddle->set_position(pos);
     }
@@ -166,12 +205,39 @@ void board::update(float dt)
     lt::vec3 ball_pos = ball->get_position();
     ball_pos += dt * ball_velocity * ball_dir;
 
+    // Check for collisions with board edges
     if(
         (ball_pos.z - ball_radius < bottom_edge && ball_dir.z < 0) ||
         (ball_pos.z + ball_radius > top_edge && ball_dir.z > 0)
     ){
-        ball_axis = lt::sphericalRand(1.0f);
         ball_dir.z = -ball_dir.z;
+    }
+
+    // Check for collisions with paddles
+    for(auto& player: players)
+    {
+        lt::vec3 pos = player.paddle->get_position();
+        lt::vec2 incident = lt::vec2(ball_dir.x, ball_dir.z);
+        lt::vec2 collision_normal(0);
+        if(
+            circle_rect_intersection(
+                lt::vec2(pos.x, pos.z),
+                paddle_radius,
+                lt::vec2(ball_pos.x, ball_pos.z),
+                ball_radius,
+                collision_normal
+            ) &&
+            lt::dot(
+                collision_normal,
+                lt::vec2(ball_dir.x, ball_dir.z)
+            ) < 0
+        ){
+            lt::vec2 reflected_dir = lt::reflect(incident, collision_normal);
+            ball_dir.x = reflected_dir.x;
+            ball_dir.z = reflected_dir.y;
+            ball_velocity += 0.1f;
+            break;
+        }
     }
 
     // Check for a goal
@@ -179,6 +245,7 @@ void board::update(float dt)
     if(ball_pos.x > left_edge)
     {
         reset_ball = true;
+        ball_velocity = 7.0f;
         players[1].score++;
     }
 
@@ -192,16 +259,15 @@ void board::update(float dt)
     {
         ball_pos.x = 0;
         ball_pos.z = 0;
+        ball_velocity = 7.0f;
         ball_dir = random_start_direction();
     }
 
+    // Move ball and rotate it along the rolling axis
     ball->set_position(ball_pos);
     ball->rotate(
         dt * 90.0f * ball_velocity,
-        lt::cross(
-            lt::vec3(0,1,0),
-            ball_dir
-        )
+        lt::cross(lt::vec3(0,1,0), ball_dir)
     );
 }
 
