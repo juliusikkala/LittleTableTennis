@@ -93,6 +93,13 @@ void update_score_numbers(
     }
 }
 
+constexpr float top_edge = 5.0f;
+constexpr float bottom_edge = -5.0f;
+constexpr float left_edge = 10.0f;
+constexpr float right_edge = -10.0f;
+constexpr lt::vec2 paddle_radius = lt::vec2(0.3f, 1.0f);
+constexpr float ball_radius = 0.3f;
+
 }
 
 board::board(
@@ -182,7 +189,6 @@ board::board(
         );
 
         p.paddle = graph.get_object("Paddle" + std::to_string(i+1));
-        p.paddle_dir = 0;
         p.score = 0;
     }
 
@@ -218,34 +224,22 @@ lt::render_scene* board::get_scene()
     return &scene;
 }
 
-void board::set_paddle_dir(unsigned player_index, int dir)
+void board::set_paddle_pos(unsigned player_index, float pos)
 {
-    if(player_index < players.size())
-        players[player_index].paddle_dir = dir;
+    lt::object* paddle = players[player_index].paddle;
+    lt::vec3 p = paddle->get_position();
+    pos = lt::clamp(pos, -1.0f, 1.0f);
+    paddle->set_position(lt::vec3(p.x, p.y, pos * (top_edge - paddle_radius.y)));
+}
+
+float board::get_paddle_pos(unsigned player_index) const
+{
+    return players[player_index].paddle->get_position().z
+        / (top_edge - paddle_radius.y);
 }
 
 void board::update(float dt)
 {
-    constexpr float top_edge = 5.0f;
-    constexpr float bottom_edge = -5.0f;
-    constexpr float left_edge = 10.0f;
-    constexpr float right_edge = -10.0f;
-    constexpr lt::vec2 paddle_radius = lt::vec2(0.3f, 1.0f);
-    constexpr float ball_radius = 0.3f;
-
-    // Update paddles
-    for(auto& player: players)
-    {
-        lt::vec3 pos = player.paddle->get_position();
-        pos += lt::vec3(0,0,10*dt*player.paddle_dir);
-        pos.z = lt::clamp(
-            pos.z,
-            bottom_edge + paddle_radius.y,
-            top_edge - paddle_radius.y
-        );
-        player.paddle->set_position(pos);
-    }
-
     // Update ball
     lt::vec3 ball_pos = ball->get_position();
     ball_pos += dt * ball_velocity * ball_dir;

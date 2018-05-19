@@ -1,5 +1,6 @@
 #include "game.hh"
 #include <iostream>
+#include <cstdint>
 
 game::game()
 :   win({"LittleTableTennis", {1280, 720}, true, true, false}),
@@ -28,6 +29,22 @@ game::game()
 
     // Load needed resources and reset frametime
     render();
+
+    // Find connected game controllers
+    for(unsigned i = 0; i < SDL_NumJoysticks(); ++i)
+    {
+        if(SDL_IsGameController(i))
+        {
+            SDL_GameController* controller = SDL_GameControllerOpen(i);
+            if(controller) controllers.push_back(controller);
+        }
+    }
+}
+
+game::~game()
+{
+    for(SDL_GameController* controller: controllers)
+        SDL_GameControllerClose(controller);
 }
 
 bool game::update()
@@ -48,17 +65,59 @@ bool game::update()
         };
     }
 
-    const uint8_t* state = SDL_GetKeyboardState(NULL);
-    int dirs[2] = {0};
-    if(state[SDL_SCANCODE_W]) dirs[0]++;
-    if(state[SDL_SCANCODE_S]) dirs[0]--;
-    if(state[SDL_SCANCODE_I]) dirs[1]++;
-    if(state[SDL_SCANCODE_K]) dirs[1]--;
+    float dt = win.get_delta();
 
-    board1.set_paddle_dir(0, dirs[0]);
-    board1.set_paddle_dir(1, dirs[1]);
+    // Controller controls
+    if(controllers.size() >= 1)
+    {
+        int axes[2] = {0};
+        // Only a single controller, so use it for both paddles
+        if(controllers.size() == 1)
+        {
+            axes[0] = SDL_GameControllerGetAxis(
+                controllers[0],
+                SDL_CONTROLLER_AXIS_LEFTY
+            );
+            axes[1] = SDL_GameControllerGetAxis(
+                controllers[0],
+                SDL_CONTROLLER_AXIS_RIGHTY
+            );
+        }
+        // Two or more controllers, use the first two.
+        else
+        {
+            axes[0] = SDL_GameControllerGetAxis(
+                controllers[0],
+                SDL_CONTROLLER_AXIS_LEFTY
+            );
+            axes[1] = SDL_GameControllerGetAxis(
+                controllers[1],
+                SDL_CONTROLLER_AXIS_LEFTY
+            );
+        }
+        board1.set_paddle_pos(0, -(float)axes[0] / INT16_MAX);
+        board1.set_paddle_pos(1, -(float)axes[1] / INT16_MAX);
+    }
+    else
+    {
+        // Keyboard controls
+        const uint8_t* state = SDL_GetKeyboardState(NULL);
+        int dirs[2] = {0};
+        if(state[SDL_SCANCODE_W]) dirs[0]++;
+        if(state[SDL_SCANCODE_S]) dirs[0]--;
+        if(state[SDL_SCANCODE_I]) dirs[1]++;
+        if(state[SDL_SCANCODE_K]) dirs[1]--;
+        board1.set_paddle_pos(
+            0,
+            board1.get_paddle_pos(0) + 2.0f * dt * dirs[0]
+        );
+        board1.set_paddle_pos(
+            1,
+            board1.get_paddle_pos(1) + 2.0f * dt * dirs[1]
+        );
+    }
 
-    board1.update(win.get_delta());
+    board1.update(dt);
     return true;
 }
 

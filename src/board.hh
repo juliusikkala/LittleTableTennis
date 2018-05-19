@@ -26,13 +26,12 @@ public:
 
     lt::render_scene* get_scene();
 
-    /* Sets the direction the paddle is moving in. player_index is the index of
-     * the player whose paddle is moving, dir is the direction of the paddle:
-     * dir > 0 => up
-     * dir == 0 => not moving
-     * dir < 0 => down
+    /* Sets the position of the paddle. player_index is the index of the player
+     * whose paddle is being moved, pos is the position of the paddle in the
+     * range [-1, 1].
      */
-    void set_paddle_dir(unsigned player_index, int dir);
+    void set_paddle_pos(unsigned player_index, float pos);
+    float get_paddle_pos(unsigned player_index) const;
 
     // Updates the board state
     void update(float dt);
@@ -66,9 +65,6 @@ private:
 
         // The paddle of the player
         lt::object* paddle;
-
-        // The direction of the player's paddle
-        int paddle_dir;
 
         // The score of the player
         unsigned score;

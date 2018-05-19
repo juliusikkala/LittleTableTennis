@@ -4,11 +4,13 @@
 #include "littleton/window.hh"
 #include "board.hh"
 #include "pipeline.hh"
+#include <vector>
 
 class game
 {
 public:
     game();
+    ~game();
 
     // Updates the game state. Returns false when the game should close.
     bool update();
@@ -20,6 +22,7 @@ private:
     lt::window win;
     lt::resource_pool pool;
 
+    std::vector<SDL_GameController*> controllers;
     pipeline pl;
     board board1;
 };
