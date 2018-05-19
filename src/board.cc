@@ -287,7 +287,7 @@ void board::update(float dt)
             lt::vec2 reflected_dir = lt::reflect(incident, collision_normal);
             ball_dir.x = reflected_dir.x;
             ball_dir.z = reflected_dir.y;
-            ball_velocity *= 1.1f;
+            ball_velocity += 0.5f;
             break;
         }
     }
