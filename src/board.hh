@@ -1,15 +1,15 @@
 #ifndef BOARD_HH
 #define BOARD_HH
-#include "object.hh"
-#include "window.hh"
-#include "resource_pool.hh"
-#include "basic_pipeline.hh"
-#include "scene_graph.hh"
-#include "scene.hh"
-#include "light.hh"
-#include "environment_map.hh"
-#include "method/shadow_msm.hh"
-#include "camera.hh"
+#include "littleton/object.hh"
+#include "littleton/window.hh"
+#include "littleton/resource_pool.hh"
+#include "littleton/scene_graph.hh"
+#include "littleton/scene.hh"
+#include "littleton/light.hh"
+#include "littleton/environment_map.hh"
+#include "littleton/method/shadow_msm.hh"
+#include "littleton/camera.hh"
+#include "pipeline.hh"
 #include <vector>
 
 class board
@@ -18,7 +18,7 @@ public:
     board(
         lt::window& win,
         lt::resource_pool& pool,
-        basic_pipeline& pipeline,
+        pipeline& pl,
         const std::string& data_path,
         const std::string& board_path,
         const std::string& counter_path

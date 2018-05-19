@@ -1,6 +1,6 @@
-#include "basic_pipeline.hh"
+#include "pipeline.hh"
 
-basic_pipeline::basic_pipeline(
+pipeline::pipeline(
     lt::window& win,
     lt::resource_pool& pool,
     lt::uvec2 size,
@@ -76,7 +76,7 @@ basic_pipeline::basic_pipeline(
     ssrt.use_fallback_cubemap(true);
 }
 
-void basic_pipeline::set_scene(lt::render_scene* scene)
+void pipeline::set_scene(lt::render_scene* scene)
 {
     skybox.set_scene(scene);
     msm.set_scene(scene);
@@ -87,27 +87,27 @@ void basic_pipeline::set_scene(lt::render_scene* scene)
     vg.set_scene(scene);
 }
 
-lt::pipeline& basic_pipeline::get_pipeline()
+lt::pipeline& pipeline::get_pipeline()
 {
     return deferred_pipeline;
 }
 
-lt::pipeline& basic_pipeline::get_visualizer_pipeline()
+lt::pipeline& pipeline::get_visualizer_pipeline()
 {
     return visualizer_pipeline;
 }
 
-lt::method::shadow_msm& basic_pipeline::get_msm()
+lt::method::shadow_msm& pipeline::get_msm()
 {
     return msm;
 }
 
-lt::pipeline& basic_pipeline::get_texture_pipeline()
+lt::pipeline& pipeline::get_texture_pipeline()
 {
     return texture_pipeline;
 }
 
-void basic_pipeline::set_texture(lt::texture& tex)
+void pipeline::set_texture(lt::texture& tex)
 {
     dt.set_texture(&tex);
 }

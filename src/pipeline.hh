@@ -1,31 +1,31 @@
-#ifndef BASIC_PIPELINE_HH
-#define BASIC_PIPELINE_HH
+#ifndef PIPELINE_HH
+#define PIPELINE_HH
 
-#include "pipeline.hh"
-#include "window.hh"
-#include "texture.hh"
-#include "gbuffer.hh"
-#include "doublebuffer.hh"
-#include "method/clear_gbuffer.hh"
-#include "method/skybox.hh"
-#include "method/shadow_msm.hh"
-#include "method/geometry_pass.hh"
-#include "method/lighting_pass.hh"
-#include "method/bloom.hh"
-#include "method/tonemap.hh"
-#include "method/sao.hh"
-#include "method/ssrt.hh"
-#include "method/visualize_gbuffer.hh"
-#include "method/blit_framebuffer.hh"
-#include "method/draw_texture.hh"
+#include "littleton/pipeline.hh"
+#include "littleton/window.hh"
+#include "littleton/texture.hh"
+#include "littleton/gbuffer.hh"
+#include "littleton/doublebuffer.hh"
+#include "littleton/method/clear_gbuffer.hh"
+#include "littleton/method/skybox.hh"
+#include "littleton/method/shadow_msm.hh"
+#include "littleton/method/geometry_pass.hh"
+#include "littleton/method/lighting_pass.hh"
+#include "littleton/method/bloom.hh"
+#include "littleton/method/tonemap.hh"
+#include "littleton/method/sao.hh"
+#include "littleton/method/ssrt.hh"
+#include "littleton/method/visualize_gbuffer.hh"
+#include "littleton/method/blit_framebuffer.hh"
+#include "littleton/method/draw_texture.hh"
 
 /* The pipeline creation is quite convoluted for the moment. It would be nice to
  * have some built-in solutions in Littleton.
  */
-class basic_pipeline
+class pipeline
 {
 public:
-    basic_pipeline(
+    pipeline(
         lt::window& win,
         lt::resource_pool& pool,
         lt::uvec2 size,

@@ -1,5 +1,5 @@
 #include "board.hh"
-#include "loaders.hh"
+#include "littleton/loaders.hh"
 #include <string>
 
 namespace
@@ -98,14 +98,14 @@ void update_score_numbers(
 board::board(
     lt::window& win,
     lt::resource_pool& pool,
-    basic_pipeline& pipeline,
+    pipeline& pl,
     const std::string& data_path,
     const std::string& board_path,
     const std::string& counter_path
 ):  ball_velocity(7.0f),
     ball_dir(random_start_direction()),
     sun_shadow(
-        &pipeline.get_msm(),
+        &pl.get_msm(),
         win,
         lt::uvec2(1024, 1024),
         4,
@@ -196,7 +196,7 @@ board::board(
     scene.add_light(&sun);
     scene.add_shadow(&sun_shadow);
     scene.set_skybox(&environment);
-    pipeline.set_texture(sun_shadow.get_moments());
+    pl.set_texture(sun_shadow.get_moments());
     scene.set_ambient(lt::vec3(0.06f,0.08f,0.1f));
 
     // Setup camera
@@ -251,7 +251,11 @@ void board::update(float dt)
     ball_pos += dt * ball_velocity * ball_dir;
 
     // Adjust ball direction so that the game doesn't become too slow
-    if(fabs(ball_dir.x) < 0.4f) ball_dir.x *= 1.01f;
+    if(fabs(ball_dir.x) < 0.4f)
+    {
+        ball_dir.x *= 1.01f;
+        ball_dir = lt::normalize(ball_dir);
+    }
 
     // Check for collisions with board edges
     if(
@@ -283,7 +287,7 @@ void board::update(float dt)
             lt::vec2 reflected_dir = lt::reflect(incident, collision_normal);
             ball_dir.x = reflected_dir.x;
             ball_dir.z = reflected_dir.y;
-            ball_velocity += 0.1f;
+            ball_velocity *= 1.1f;
             break;
         }
     }

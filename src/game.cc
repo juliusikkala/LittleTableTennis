@@ -10,17 +10,17 @@ game::game()
             "subprojects/Littleton/data/shaders/"
         } //, {"data/shaders/bin"}
     ),
-    pipeline(win, pool, win.get_size()),
+    pl(win, pool, win.get_size()),
     board1(
         win,
         pool,
-        pipeline,
+        pl,
         "data",
         "data/models/board1.glb",
         "data/models/counter.glb"
     )
 {
-    pipeline.set_scene(board1.get_scene());
+    pl.set_scene(board1.get_scene());
     win.set_framerate_limit(200);
     win.grab_mouse();
     std::cout << "GPU Vendor: " << win.get_vendor_name() << std::endl
@@ -64,6 +64,6 @@ bool game::update()
 
 void game::render()
 {
-    pipeline.get_pipeline().execute();
+    pl.get_pipeline().execute();
     win.present();
 }
