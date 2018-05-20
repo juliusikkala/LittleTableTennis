@@ -54,10 +54,10 @@ assumptions over those in [Littleton](https://github.com/juliusikkala/Littleton/
 
 ### Keyboard
 
-W and S move the left paddle up and down, respectively. I and K move the right
+W and S move the left paddle up and down respectively. I and K move the right
 paddle. Escape and Q exit the game.
 
 ### Controller
 
-If only one controller is connected, it's left and right thumbsticks control the
+If only one controller is connected, its left and right thumbsticks control the
 paddles. If two are connected, their left thumbsticks control the paddles.
