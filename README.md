@@ -61,3 +61,11 @@ paddle. Escape and Q exit the game.
 
 If only one controller is connected, its left and right thumbsticks control the
 paddles. If two are connected, their left thumbsticks control the paddles.
+
+## Asset Credits
+
+All textures are under the CC0 license. They were downloaded from the wonderful
+[CC0 Textures by StruffelProductions](http://www.cc0textures.com). The skybox
+is CC0 as well and was downloaded from [HDRI Haven](https://hdrihaven.com/).
+The .blend files and .glb files were created by me and are under the same MIT
+license as the rest of the project.
