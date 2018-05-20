@@ -1,6 +1,6 @@
 # LittleTableTennis
 
-![Screenshot of the game](https://raw.githubusercontent.com/juliusikkala/LittleTableTennis/master/screenshot.png)
+![Screenshot of the game](screenshot.png)
 
 This is an example project for
 [Littleton](https://github.com/juliusikkala/Littleton). It's a clone of the
@@ -18,7 +18,7 @@ executable was not built against.
 Please clone the repo using
 
 ```console
-git clone --recurse-submodules git@github.com:juliusikkala/LittleTableTennis.git
+$ git clone --recurse-submodules git@github.com:juliusikkala/LittleTableTennis.git
 ```
 
 to make sure the Littleton submodule is pulled. If you don't, all Littleton
